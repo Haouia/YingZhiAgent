@@ -1,0 +1,53 @@
+name: camp-agent
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: camp_agent
+      MYSQL_USER: camp_agent
+      MYSQL_PASSWORD: ${DATABASE_PASSWORD:?set DATABASE_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?set MYSQL_ROOT_PASSWORD}
+    volumes: [mysql-data:/var/lib/mysql]
+    healthcheck:
+      test: [CMD-SHELL, 'mysqladmin ping -h localhost -u root -p"$$MYSQL_ROOT_PASSWORD" --silent']
+      interval: 10s
+      retries: 20
+  qdrant:
+    image: qdrant/qdrant:v1.15.5
+    volumes: [qdrant-data:/qdrant/storage]
+  backend:
+    build: {context: .., dockerfile: deploy/backend.Dockerfile}
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DATABASE_URL: jdbc:mysql://mysql:3306/camp_agent?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+      DATABASE_USER: camp_agent
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET}
+      DEMO_PASSWORD: ${DEMO_PASSWORD:?set DEMO_PASSWORD}
+      DASHSCOPE_API_KEY: ${DASHSCOPE_API_KEY:-}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      CHAT_PROVIDER: ${CHAT_PROVIDER:-dashscope}
+      DEEPSEEK_MODEL: ${DEEPSEEK_MODEL:-deepseek-flash}
+      RETRIEVAL_MODE: ${RETRIEVAL_MODE:-hybrid}
+      MAP_MINUTE_LIMIT: ${MAP_MINUTE_LIMIT:-30}
+      MAP_DAY_LIMIT: ${MAP_DAY_LIMIT:-200}
+      MAP_GLOBAL_DAY_LIMIT: ${MAP_GLOBAL_DAY_LIMIT:-1000}
+      AMAP_MCP_ENABLED: ${AMAP_MCP_ENABLED:-false}
+      AMAP_WEB_SERVICE_KEY: ${AMAP_WEB_SERVICE_KEY:-}
+      MODEL_BASE_URL: ${MODEL_BASE_URL:-https://dashscope.aliyuncs.com/compatible-mode}
+      RERANK_URL: ${RERANK_URL:-https://dashscope.aliyuncs.com/api/v1/services/rerank/text-rerank/text-rerank}
+      QDRANT_URL: http://qdrant:6333
+      STORAGE_PATH: /data/documents
+    depends_on:
+      mysql: {condition: service_healthy}
+      qdrant: {condition: service_started}
+    volumes: [documents:/data/documents]
+  web:
+    build: {context: .., dockerfile: deploy/frontend.Dockerfile}
+    ports: ["${WEB_BIND_ADDRESS:-127.0.0.1}:8090:80"]
+    depends_on: [backend]
+volumes:
+  mysql-data:
+  qdrant-data:
+  documents:
+

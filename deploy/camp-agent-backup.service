@@ -1,0 +1,9 @@
+[Unit]
+Description=Camp agent database and document backup
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+UMask=0077
+ExecStart=/usr/bin/bash /opt/camp-agent/current/scripts/backup-server.sh

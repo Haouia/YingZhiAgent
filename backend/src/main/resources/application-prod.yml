@@ -1,0 +1,12 @@
+server:
+  address: 0.0.0.0
+spring:
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USER}
+    password: ${DATABASE_PASSWORD}
+camp:
+  mode: cloud
+  jwt-secret: ${JWT_SECRET}
+  demo-password: ${DEMO_PASSWORD}
+

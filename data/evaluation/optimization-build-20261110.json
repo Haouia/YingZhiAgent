@@ -1,0 +1,13 @@
+{
+  "jar_sha256": "8325e802bce23cf563f9fa4843887e1cc110f10a5bb38db249a299b8055a0688",
+  "map_retrieval_bytecode_matches_evaluated_jar": true,
+  "backend_tests": 68,
+  "frontend_tests": 7,
+  "python_tests": 7,
+  "backup_fixture_passed": true,
+  "server_deployed": false,
+  "pilot_passed": false,
+  "colloquial_holdout_passed": false,
+  "colloquial_holdout_hits": 23,
+  "colloquial_holdout_total": 30
+}

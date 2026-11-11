@@ -1,0 +1,59 @@
+{
+  "named_hits": 11,
+  "named_total": 30,
+  "named_hit_at_5": 0.36666666666666664,
+  "generic_valid": 8,
+  "generic_total": 30,
+  "generic_precision": 0.26666666666666666,
+  "generic_cities_verified": 5,
+  "search_errors": 0,
+  "detail_errors": 0,
+  "uncertain_candidates": 26,
+  "empty_searches": 16,
+  "search_p50_ms": 178,
+  "search_p95_ms": 1169,
+  "search_under_3s": 36,
+  "search_total": 36,
+  "application_map_requests": 83,
+  "by_city": {
+    "北京": {
+      "named_hits": 1,
+      "named_total": 5,
+      "generic_valid": 1,
+      "generic_total": 5
+    },
+    "哈尔滨": {
+      "named_hits": 3,
+      "named_total": 5,
+      "generic_valid": 0,
+      "generic_total": 5
+    },
+    "杭州": {
+      "named_hits": 3,
+      "named_total": 5,
+      "generic_valid": 2,
+      "generic_total": 5
+    },
+    "广州": {
+      "named_hits": 1,
+      "named_total": 5,
+      "generic_valid": 1,
+      "generic_total": 5
+    },
+    "成都": {
+      "named_hits": 2,
+      "named_total": 5,
+      "generic_valid": 3,
+      "generic_total": 5
+    },
+    "乌鲁木齐": {
+      "named_hits": 1,
+      "named_total": 5,
+      "generic_valid": 1,
+      "generic_total": 5
+    }
+  },
+  "passed": false,
+  "cases_sha256": "a46780cf0099fddce5b194eb26592423255d4da1916a529a8edc9d7bf94955be",
+  "review_sha256": "c20ca747d59ee28dc0b51e7424af891793f4a59d9f26fe9eb1ffe19108245f76"
+}

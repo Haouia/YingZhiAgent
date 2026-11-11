@@ -1,0 +1,6 @@
+{
+  "frozen_at": "2026-11-10T09:14:24.325904+00:00",
+  "sha256": "79192fed230dedaa43657dc5fc84e310e6daf4a774847f65bac6c6b381b64175",
+  "count": 30,
+  "description": "Frozen before synonym changes and results; same fictional corpus, distinct wording. Development regression after first tuning."
+}

@@ -1,0 +1,31 @@
+{
+  "before": {
+    "hits": 23,
+    "total": 30,
+    "result_sha256": "ba3da883b64f5af42ad6c65e610c5208a39f365c942c0678903a28bf35bb8192",
+    "misses": [
+      "H-v1-06-2",
+      "H-v1-07-1",
+      "H-v1-07-4",
+      "H-v1-07-5",
+      "H-v1-08-2",
+      "H-v1-08-3",
+      "H-v1-04-5"
+    ]
+  },
+  "after": {
+    "hits": 23,
+    "total": 30,
+    "result_sha256": "e03dd66fb1e5bcd23a593b75e36fbd9eb96d442f605a81033b09c3ae97bd7630",
+    "misses": [
+      "H-v1-06-2",
+      "H-v1-07-1",
+      "H-v1-07-4",
+      "H-v1-07-5",
+      "H-v1-08-2",
+      "H-v1-08-3",
+      "H-v1-04-5"
+    ]
+  },
+  "passed": false
+}

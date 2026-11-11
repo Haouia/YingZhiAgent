@@ -1,0 +1,6 @@
+{
+  "created_at": "2026-11-10T09:46:22.451599+00:00",
+  "cases_sha256": "8c90c7428643dbca520a7a0449e2940a7a17f2ac30f075d4e9d29fb14cc84aa1",
+  "retrieval_source_sha256": "2e4e5ab6a38d7a0b3518158ecbd3c83936173ad0d9148a67018f898be85da599",
+  "rule": "Created after code fixed; no adjustments after scoring; distinct from tuning questions; finite fictional corpus."
+}

@@ -1,0 +1,50 @@
+server:
+  address: ${BIND_ADDRESS:127.0.0.1}
+  port: ${PORT:8081}
+spring:
+  application:
+    name: camp-agent
+  profiles:
+    default: demo
+  datasource:
+    url: ${DATABASE_URL:jdbc:h2:file:./.local/camp-agent;MODE=MySQL;DATABASE_TO_LOWER=TRUE}
+    username: ${DATABASE_USER:sa}
+    password: ${DATABASE_PASSWORD:}
+  sql:
+    init:
+      mode: always
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 11MB
+camp:
+  mode: ${AGENT_MODE:demo}
+  jwt-secret: ${JWT_SECRET:}
+  demo-password: ${DEMO_PASSWORD:CampDemo2026!}
+  api-key: ${DASHSCOPE_API_KEY:}
+  chat-provider: ${CHAT_PROVIDER:dashscope}
+  deepseek-api-key: ${DEEPSEEK_API_KEY:}
+  deepseek-model: ${DEEPSEEK_MODEL:deepseek-flash}
+  retrieval-mode: ${RETRIEVAL_MODE:hybrid}
+  base-url: ${MODEL_BASE_URL:https://dashscope.aliyuncs.com/compatible-mode}
+  chat-model: ${CHAT_MODEL:qwen-plus}
+  embedding-model: ${EMBEDDING_MODEL:text-embedding-v4}
+  rerank-model: ${RERANK_MODEL:qwen3-rerank}
+  ocr-model: ${OCR_MODEL:qwen-vl-ocr}
+  rerank-url: ${RERANK_URL:https://dashscope.aliyuncs.com/api/v1/services/rerank/text-rerank/text-rerank}
+  qdrant-url: ${QDRANT_URL:http://localhost:6333}
+  qdrant-key: ${QDRANT_API_KEY:}
+  collection: camp_agent_chunks
+  storage: ${STORAGE_PATH:./.local/documents}
+  daily-limit: ${DAILY_REQUEST_LIMIT:100}
+  map-minute-limit: ${MAP_MINUTE_LIMIT:30}
+  map-day-limit: ${MAP_DAY_LIMIT:200}
+  map-global-day-limit: ${MAP_GLOBAL_DAY_LIMIT:1000}
+  amap-enabled: ${AMAP_MCP_ENABLED:false}
+  amap-key: ${AMAP_WEB_SERVICE_KEY:}
+
+logging:
+  level:
+    # The upstream protocol requires the credential in the request URI.
+    io.modelcontextprotocol: 'OFF'
+
