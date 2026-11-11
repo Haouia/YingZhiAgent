@@ -1,0 +1,2 @@
+camp:
+  demo-password: ${DEMO_PASSWORD:123456}

@@ -10,11 +10,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @Component
 public class Seed implements ApplicationRunner {
-    private final Db db;private final Documents documents;private final BCryptPasswordEncoder passwords;private final String password,mode;
-    public Seed(Db db,Documents documents,BCryptPasswordEncoder passwords,@Value("${camp.demo-password}")String password,@Value("${camp.mode}")String mode){this.db=db;this.documents=documents;this.passwords=passwords;this.password=password;this.mode=mode;}
+    private final Db db;private final Documents documents;private final BCryptPasswordEncoder passwords;private final String password,mode,bindAddress;
+    public Seed(Db db,Documents documents,BCryptPasswordEncoder passwords,@Value("${camp.demo-password}")String password,@Value("${camp.mode}")String mode,
+                @Value("${server.address}")String bindAddress){this.db=db;this.documents=documents;this.passwords=passwords;this.password=password;this.mode=mode;this.bindAddress=bindAddress;}
     @SuppressWarnings("unchecked") public void run(ApplicationArguments args) throws Exception{
+        boolean localDemoPassword = "123456".equals(password) && "demo".equals(mode)
+                && Set.of("127.0.0.1", "::1", "0:0:0:0:0:0:0:1").contains(bindAddress);
+        if(password.length()<12 && !localDemoPassword)throw new IllegalStateException("DEMO_PASSWORD must be at least 12 characters");
         db.update("update knowledge_version set status='FAILED',error_message='处理因服务重启中断，请重新上传' where status='PROCESSING'");
-        if(password.length()<12)throw new IllegalStateException("DEMO_PASSWORD must be at least 12 characters");
         for(var u:List.of(new String[]{"user","露营体验者","USER"},new String[]{"user2","另一位用户","USER"},new String[]{"staff","客服小营","STAFF"},new String[]{"ops","知识运营","OPS"})){
             if(db.rows("select id from app_user where username=?",u[0]).isEmpty())db.update("insert into app_user values(?,?,?,?,?)",u[0],u[0],passwords.encode(password),u[1],u[2]);
         }

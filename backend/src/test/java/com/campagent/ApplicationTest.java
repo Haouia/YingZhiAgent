@@ -36,7 +36,7 @@ class ApplicationTest {
         var r=client.send(req.build(),HttpResponse.BodyHandlers.ofString());
         Map<String,Object> m=r.body().startsWith("{")?Json.map(r.body()):Map.of();return new Result(r.statusCode(),m,r.body());
     }
-    String login(String user) throws Exception {var r=request("POST","/auth/login",null,Map.of("username",user,"password","CampDemo2026!"));assertEquals(200,r.status,r.text);return r.data.get("token").toString();}
+    String login(String user) throws Exception {var r=request("POST","/auth/login",null,Map.of("username",user,"password","123456"));assertEquals(200,r.status,r.text);return r.data.get("token").toString();}
     Map<String,Object> draft(String token) throws Exception {
         var r=request("POST","/chat",token,Map.of("message","投诉青岚竹溪营地：停车标识不清晰"));assertEquals(200,r.status,r.text);
         @SuppressWarnings("unchecked")var d=(Map<String,Object>)r.data.get("pendingTicketDraft");assertNotNull(d);return r.data;
@@ -45,7 +45,9 @@ class ApplicationTest {
         assertEquals(200,request("GET","/health",null,null).status);
         assertEquals(401,request("GET","/campsites",null,null).status);
         assertEquals(401,request("POST","/auth/login",null,Map.of("username","user","password","bad")).status);
-        assertEquals("USER",request("GET","/auth/me",login("user"),null).data.get("role"));
+        for(var account:Map.of("user","USER","user2","USER","staff","STAFF","ops","OPS").entrySet()){
+            assertEquals(account.getValue(),request("GET","/auth/me",login(account.getKey()),null).data.get("role"));
+        }
     }
     @Test void rolesAreEnforced() throws Exception {
         String user=login("user");assertEquals(403,request("GET","/ops/documents",user,null).status);

@@ -2,7 +2,7 @@
 
 ## 2026-11-11 线上版本与访问地址
 
-公网地址更新为 `http://121.40.149.114:8090/`，本机 `ssh camp-server` 已核验可登录。当前版本为 `release-20261110T100939Z-optimization`，`/opt/camp-agent/current` 已指向该版本。外网首页与健康接口HTTP 200。2026-11-09的部署记录保留在下文，最新验收见[优化记录](OPTIMIZATION-20261110.md)。
+公网地址更新为 `http://121.40.149.114:8090/`，本机 `ssh camp-server` 已核验可登录。优化版验收使用 `release-20261110T100939Z-optimization`。在服务器执行 `readlink -f /opt/camp-agent/current` 可查看当前版本。外网首页与健康接口HTTP 200。2026-11-09的部署记录保留在下文，最新验收见[优化记录](OPTIMIZATION-20261110.md)。
 
 本手册对应 **营知 · 营地服务 Agent**。本地工程在 `D:\camp-agent`，服务器使用 `/opt/camp-agent`、Compose 项目 `camp-agent` 和容器内 `camp_agent` 库。
 
@@ -59,7 +59,7 @@ journalctl -u camp-agent-backup.service --since today
 
 demo 使用 H2 文件库，位于 backend/.local。后端默认仅绑定 127.0.0.1:8081；Vite 使用 127.0.0.1:5174。初次启动创建 4 个演示账号、5 个虚构营地、60 份公开资料和 1 份内部客服资料。
 
-首次启动可通过 DEMO_PASSWORD 修改种子账号密码，至少 12 字符；已建账号不随该环境变量变化自动重置。demo 的 JWT 密钥在未配置时每次启动重新生成，重启后需要重新登录。
+回环地址上的 demo 模式默认用 `123456` 初始化演示账号。通过 DEMO_PASSWORD 自定义其他密码时，至少填写 12 个字符。cloud 模式及对外监听的实例也要求密码至少 12 个字符。已建账号保留数据库中的密码。demo 的 JWT 密钥在未配置时每次启动重新生成，重启后需要重新登录。
 
 ## 容器与 cloud 模式
 
