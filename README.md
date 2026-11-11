@@ -85,10 +85,11 @@ docker compose --env-file deploy/.env -f deploy/compose.yml up -d --build
 
 ## 测试与文档
 
-在仓库根目录执行以下命令。前端测试和构建需要先运行 `npm ci` 安装依赖。
+在仓库根目录执行以下命令。评测脚本的测试需要 Python 3.9 或更高版本。
 
 ```bash
 mvn -f backend/pom.xml test
+npm --prefix frontend ci
 npm --prefix frontend test
 npm --prefix frontend run build
 python -m unittest discover -s tests -p "test_*.py"
