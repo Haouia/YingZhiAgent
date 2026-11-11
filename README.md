@@ -1,101 +1,105 @@
-# 营知 · 营地咨询与服务 Agent
+# 营知 · 营地服务 Agent
 
-独立 Java / Vue 应用，完成营地查询、知识资料问答、确认后提交工单、客服处理和运营资料发布。
+营知（YingZhiAgent）是一套可独立运行的营地咨询与服务应用。用户可以在对话中查找营地、询问规则和准备工单。客服通过工作台处理工单，运营人员负责维护营地信息和发布知识资料。
 
-## 项目位置与边界
+## 功能
 
-本工程独立存放于 `D:\camp-agent`，不读取“毕设1”的数据库、代码或账号。默认后端端口 8081、前端端口 5174，数据保存在本工程 `backend/.local`。
+- **营地查询**　按城市、设施或关键词查找本地营地。启用高德地图 MCP 后，可以查询真实地点，查看地址和详情，并用「第二个营地」等指代继续提问。
+- **资料问答**　按营地、资料发布状态和用户权限检索规则，回答可附原文引用。运营人员可以上传、审核、发布和下架资料版本。
+- **工单处理**　对话先准备草稿，用户确认后才创建正式工单。重复确认返回同一工单，客服填写处理说明，用户可查看本人工单的进度。
+- **角色与权限**　普通用户、客服和运营人员各有对应界面。后端校验会话、工单和资料引用的访问权限。
 
-正式本机模式采用 MySQL、DeepSeek 实际工具调用和 BM25 关键词检索。营地查询、多轮规则引用、工单闭环和一张图片文字提取已通过小规模联调。混合向量检索需独立的向量化和重排序凭证。详见 [DeepSeek 联调记录](docs/DEEPSEEK-ACCEPTANCE.md)。
+仓库内置虚构营地及演示资料。高德返回地点候选和地图信息，真实营地的营业规则、价格和余位需向营地核实。工单用于咨询和服务处理。
 
-## 快速运行：本地业务演示
+## 本地快速开始
 
-要求 Java 21、Maven 3.9+、Node 24。首次运行需要下载依赖。
+准备 JDK 21、Maven 3.9+ 和 Node.js 24。本地 `demo` 模式使用 H2 和 BM25，无需 Docker 或模型密钥。
 
-终端一：
+```bash
+git clone https://github.com/Haouia/YingZhiAgent.git
+cd YingZhiAgent
+```
 
-```powershell
-cd D:\camp-agent\backend
+从仓库根目录打开两个终端。在第一个终端启动后端。
+
+```bash
+cd backend
 mvn spring-boot:run
 ```
 
-终端二：
+在第二个终端启动前端。
 
-```powershell
-cd D:\camp-agent\frontend
+```bash
+cd frontend
 npm ci
 npm run dev
 ```
 
-浏览器打开 [本地开发页面](http://127.0.0.1:5174)。H2 demo 账号 `user`、`user2`、`staff`、`ops` 的初始密码为 `CampDemo2026!`，依次为普通用户、另一个普通用户、客服和运营。cloud 模式的账号初始密码取自私有 `deploy/.env` 中的 `DEMO_PASSWORD`。
+打开 [本地应用](http://127.0.0.1:5174/)。前端把 `/api` 请求代理到 `127.0.0.1:8081`，本地演示数据保存在 `backend/.local/`。
 
-也可以直接启动已经构建的后端：
-
-```powershell
-cd D:\camp-agent\backend
-java -jar target/camp-agent-0.1.0.jar
-```
-
-本地模式采用持久化 H2 数据库、关键词路由及 BM25 原文检索，页面和回答明确标记“未调用大模型”。这用于无 Key 时验证业务流程，不模拟真实向量或重排序结果。图片和扫描 PDF 的 OCR 在此模式会明确提示需要云服务，不伪造提取结果。
-
-## 切换真实云模型
-
-私有 deploy/.env 已配置 DeepSeek；不要把 Key 发到聊天或提交 Git。当前设置为 CHAT_PROVIDER=deepseek、DEEPSEEK_MODEL=deepseek-flash、RETRIEVAL_MODE=keyword。完整变量与容器配置见 [部署说明](docs/DEPLOYMENT.md)。
-
-```powershell
-cd D:\camp-agent
-docker compose --env-file deploy/.env -f deploy/compose.yml -f deploy/compose.local.yml up -d mysql qdrant
-# 确保 8081 上现有后端已停止后启动；前端可保留。
-./scripts/start-cloud-local.ps1
-```
-
-脚本连接独立 MySQL camp_agent 库，不迁移 H2 数据。cloud 不自动降级为 demo；keyword 是明确配置的检索方式。运营须核对资料再发布。切换 hybrid 需配置独立 DASHSCOPE_API_KEY 并重新发布有效资料以建立向量索引；DeepSeek Key 只用于 DeepSeek。
-
-Spring AI 负责 `@Tool` 元数据及受控工具执行；应用显式实现最多 4 轮的模型/工具循环。工具只查询营地、检索资料、准备草稿和查询本人工单；正式工单始终由确认接口创建。
-
-## 查找真实营地
-
-登录后可在「营地助手」输入「帮我找杭州的真实露营地」，再问「第二个营地的地址」「它能带宠物吗」。也可打开「找真实营地」直接输入城市和关键词。两处均展示最多 5 个高德地图候选、来源和查询时间。当前真实地点的审核规则资料待补齐，规则追问会提示向营地核实。
-
-在私有 `deploy/.env` 中配置 `AMAP_WEB_SERVICE_KEY` 并设置 `AMAP_MCP_ENABLED=true`，然后按上节启动。高德查询仅在后端调用。[高德 MCP 验收记录](docs/AMAP-MCP-ACCEPTANCE.md)
-
-## 目录入口
-
-| 路径 | 内容 |
+| 本地演示账号 | 用途 |
 | --- | --- |
-| [PLAN.md](PLAN.md) | 原始目标及实际实现差异 |
-| backend/src/main/java/com/campagent | auth、chat、knowledge、campsite、ticket、config、common |
-| frontend/src | Vue 界面、API 客户端、登录状态与样式 |
-| database | 建库结构 |
-| data/knowledge | 61 份公开/内部虚构资料及清单 |
-| data/evaluation | 200 个待人工审核的候选案例，不是验收结果 |
-| [docs/API.md](docs/API.md) | 主要接口和权限 |
-| [docs/DEMO.md](docs/DEMO.md) | 用户、客服、运营演示步骤 |
-| [docs/EVALUATION.md](docs/EVALUATION.md) | 当前验证证据和未验证项 |
-| [docs/DEEPSEEK-ACCEPTANCE.md](docs/DEEPSEEK-ACCEPTANCE.md) | 当前模型配置、数据流和真实联调结果 |
-| deploy | Dockerfile、Compose、Nginx、环境变量模板 |
+| `user` | 查询营地、查看引用和提交工单 |
+| `user2` | 验证普通用户之间的数据隔离 |
+| `staff` | 处理工单 |
+| `ops` | 管理营地和发布资料 |
 
-## 验证命令
+全新本地 `demo` 库的初始密码为 `CampDemo2026!`。可以用 `user` 登录并提问「青岚竹溪营地可以带宠物吗？」，然后打开回答里的资料引用。完整流程见 [演示指南](docs/DEMO.md)。
 
-```powershell
-cd D:\camp-agent\backend
-mvn test
-mvn package
-cd ..\frontend
-npm run build
+## 云模型与容器运行
+
+安装 Docker 和 Docker Compose，从仓库根目录复制环境变量模板。
+
+```bash
+cp deploy/.env.example deploy/.env
 ```
 
-默认 mvn test 使用内存数据库和本地模型协议模拟服务；infrastructure profile 另外使用隔离的真实 MySQL/Qdrant。两种方式均不消耗真实云 API 额度。用户资料、正式业务数据库和旧项目不参与测试。
+在本机的 `deploy/.env` 中配置 `DATABASE_PASSWORD`（应用数据库密码）、`MYSQL_ROOT_PASSWORD`（MySQL root 密码）、`JWT_SECRET`（JWT 签名密钥）、`DEMO_PASSWORD`（初始演示账号密码）和 `DEEPSEEK_API_KEY`。模板默认选择 DeepSeek 对话和 BM25 检索，实际密钥保存在本地环境文件中。
 
+```bash
+docker compose --env-file deploy/.env -f deploy/compose.yml up -d --build
+```
 
-## 后续联调进度
+打开 [容器应用](http://127.0.0.1:8090/)。首次启动时，使用 `DEMO_PASSWORD` 初始化演示账号。首次体验云模型问答时，先用 `ops` 和 `DEMO_PASSWORD` 登录，核对并发布所需种子资料。再切换到 `user` 进行提问。
 
-首版 MySQL 8.4 与 Qdrant v1.15.5 联调通过，使用本机 13316 / 16333。首版 33 项自动化测试包含 25 项普通测试和 8 项基础组件联调。另行完成了 5 个真实 DeepSeek 对话用例、工单 REST 流程和 1 张图片文字提取。
+| 可选配置 | 用途 |
+| --- | --- |
+| `AMAP_MCP_ENABLED=true` 和 `AMAP_WEB_SERVICE_KEY` | 启用真实营地查询。聊天工具和地点查询接口共用后端额度控制。 |
+| `RETRIEVAL_MODE=hybrid` 和 `DASHSCOPE_API_KEY` | 使用 Qdrant 向量检索、BM25 融合和百炼重排序。切换后需重新发布用于检索的资料，建立向量索引。 |
 
-- 完整证据：[基础设施验收记录](docs/INFRASTRUCTURE-ACCEPTANCE.md)。
-- 可复现命令：在项目根目录运行 `./scripts/test-infrastructure.ps1 -StartServices`。
-- 私有配置：`deploy/.env` 使用随机本地凭证并被 Git 忽略，已配置 DeepSeek，百炼 Key 未配置。
-- 2026-11-09 完成第 2 阶段本机验收，44 项自动化测试通过，其中包括 8 项真实 MySQL/Qdrant 联调。浏览器已验证聊天查询、详情、规则追问、引用与历史卡片，五个专项真实接口请求均返回 200。地点上下文保留 10 分钟。下一阶段为六城试点和检索优化。
-- 2026-11-09 已部署到独立 Ubuntu 服务器，35 项服务器 API、19 项重启与静态资源检查通过；同时修复草稿提示覆盖问题，37 项默认测试通过。暂无域名，使用 SSH 隧道访问；服务器浏览器交互、HTTPS 和并发验收待完成。见[服务器验收记录](docs/SERVER-ACCEPTANCE.md)及[连接方式](docs/DEPLOYMENT.md)。
-- 2026-11-09 全面检查发现的七项缺陷已完成对应修复，最新服务器版本 `release-20261109-172651`。53 项后端测试、7 项前端测试、37 项服务器 API 及异常 PDF/代理限流专项通过。前端回归可运行 `cd frontend; npm test`。详见[修复验收](docs/BUGFIX-ACCEPTANCE-2026-11-09.md)。
+容器部署使用独立的 `camp-agent` Compose 项目、`camp_agent` MySQL 数据库和持久化卷。Nginx 提供页面及同源 `/api` 代理，后端、MySQL 和 Qdrant 通过容器网络连接。服务器配置、备份和维护步骤见 [部署说明](docs/DEPLOYMENT.md)。
 
+## 技术与目录
+
+前端使用 Vue 3、Vite、Pinia 和 Element Plus。后端使用 Spring Boot、Spring Security 与 Spring AI，负责身份校验、资料检索、受控工具调用和工单状态流转。
+
+| 目录 | 内容 |
+| --- | --- |
+| `backend/` | Java 后端、数据库初始化和后端测试 |
+| `frontend/` | Vue 界面、路由、登录状态和前端测试 |
+| `database/` | 数据库结构和增量脚本 |
+| `data/knowledge/` | 虚构营地知识资料及清单 |
+| `data/evaluation/` | 检索与地图查询评测样本 |
+| `deploy/` | Dockerfile、Compose、Nginx 和环境变量模板 |
+| `scripts/`、`tests/` | 联调、评测和备份验证 |
+
+## 测试与文档
+
+在仓库根目录执行以下命令。前端测试和构建需要先运行 `npm ci` 安装依赖。
+
+```bash
+mvn -f backend/pom.xml test
+npm --prefix frontend test
+npm --prefix frontend run build
+python -m unittest discover -s tests -p "test_*.py"
+```
+
+后端默认测试使用内存数据库与本地模拟服务。MySQL 和 Qdrant 集成测试的准备方式见 [基础设施验收记录](docs/INFRASTRUCTURE-ACCEPTANCE.md)。
+
+- [接口与权限](docs/API.md)
+- [DeepSeek 联调记录](docs/DEEPSEEK-ACCEPTANCE.md)
+- [高德查询验收记录](docs/AMAP-MCP-ACCEPTANCE.md)
+- [评测方法与结果](docs/EVALUATION.md)
+- [优化与线上验收记录](docs/OPTIMIZATION-20261110.md)
+
+真实营地覆盖和口语检索仍按评测门槛继续验证，当前结果以验收记录中的样本和统计口径为准。
